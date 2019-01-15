@@ -4,15 +4,15 @@ namespace ClassLibrary
 {
     public class Post
     {
-        public string UserName;
-        public string Message;
-        public DateTime Time;
+        public string UserName { get; set; }
+        public string Message { get; set; }
+        public DateTime Time { get; set; }
 
         public Post(string username, string message, DateTime time)
         {
-            this.UserName = username;
-            this.Message = message;
-            this.Time = time;
+            UserName = username;
+            Message = message;
+            Time = time;
         }
     }
 }

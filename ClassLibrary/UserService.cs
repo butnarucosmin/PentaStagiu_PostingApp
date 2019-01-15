@@ -10,13 +10,13 @@ namespace ClassLibrary
         public User AddUser(string username, string firstname, string lastname, DateTime birthdate)
         {
             User user = new User(username, firstname, lastname, birthdate);
-            this.users.Add(user);
+            users.Add(user);
             return user;
         }
 
         public List<User> GetUsers()
         {
-            return this.users;
+            return users;
         }
     }
 }

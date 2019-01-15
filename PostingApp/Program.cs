@@ -11,6 +11,7 @@ namespace PostingApp
     {
         private static UserService userservice = new UserService();
         private static PostService postservice = new PostService();
+       
 
         private static void DisplayMenu()
         {
@@ -19,7 +20,8 @@ namespace PostingApp
             Console.WriteLine("2 - Add a new post");
             Console.WriteLine("3 - Display all posts");
             Console.WriteLine("4 - Display all users");
-            Console.WriteLine("5 - Exit");
+            Console.WriteLine("5 - Display post by index");
+            Console.WriteLine("6 - Exit");            
         }
 
         private static void Register()
@@ -92,6 +94,8 @@ namespace PostingApp
 
         private static void AddPost()
         {
+            postservice.PostAdded += Postservice_PostAdded;
+
             Console.WriteLine("Enter your username:");
             string username = Console.ReadLine();
             List<string> usernamelist = new List<string>();
@@ -104,7 +108,7 @@ namespace PostingApp
             if (usernamelist.Contains(username))
             {
                 Console.WriteLine("Please enter your message:");
-                postservice.AddPost(username, Console.ReadLine(), DateTime.Now);
+                postservice.AddPost(username, Console.ReadLine(), DateTime.Now);                
             }
             else
             {
@@ -117,6 +121,12 @@ namespace PostingApp
                     c = Console.ReadKey();
                 } while (c.Key != ConsoleKey.Enter);
             }            
+        }
+
+        private static void Postservice_PostAdded(object sender, EventArgs e)
+        {
+            Console.WriteLine("Post Added!");
+            Thread.Sleep(1000);
         }
 
         private static void DisplayAllPosts()
@@ -168,9 +178,33 @@ namespace PostingApp
             } while (c.Key != ConsoleKey.Enter);
         }
 
+        private static void DisplayPostbyIndex()
+        {
+            Console.WriteLine("Enter your index:");
+            if(int.TryParse(Console.ReadLine(), out int index))
+            {
+                if (index < postservice.GetPosts().Count())
+                    Console.WriteLine(postservice[index].Message);
+                else
+                    Console.WriteLine("Index too large!");
+            }
+            else
+            {
+                Console.WriteLine("Invalid option. Try again!");
+            }
+
+            ConsoleKeyInfo c;
+            do
+            {
+                Console.Write("\nPress Enter to go to menu!");
+                c = Console.ReadKey();
+            } while (c.Key != ConsoleKey.Enter);
+        }
+
         static void Main(string[] args)
         {
-            start:
+         start:
+            postservice.PostAdded -= Postservice_PostAdded;
             Console.Clear();
             DisplayMenu();
             Console.WriteLine("Your option is:");
@@ -193,6 +227,9 @@ namespace PostingApp
                     DisplayAllUsers();
                     goto start;
                 case 5:
+                    DisplayPostbyIndex();
+                    goto start;
+                case 6:
                     return;                
                 default:
                     Console.WriteLine("Invalid option. Try again!");
