@@ -21,75 +21,93 @@ namespace PostingApp
             Console.WriteLine("3 - Display all posts");
             Console.WriteLine("4 - Display all users");
             Console.WriteLine("5 - Display post by index");
-            Console.WriteLine("6 - Exit");            
+            Console.WriteLine("6 - Display posts by user");
+            Console.WriteLine("7 - Exit");            
         }
 
         private static void Register()
         {
-            username:     
-            Console.WriteLine("Enter username:");
-            string username = Console.ReadLine();
-            if (String.IsNullOrWhiteSpace(username))
-            {                
-                Console.WriteLine("Invalid option. Try again!");
-                goto username;
-            }
-            else
-            {
-                foreach (User user in userservice.GetUsers())
-                {
-                    if (username == user.UserName)
-                    {
-                        Console.WriteLine("Invalid option. Try again!");
-                        goto username;
-                    }
-                }
-            }
-
-            firstname:
-            Console.WriteLine("Enter Your First Name:");
-            string firstname = Console.ReadLine();
-            if (String.IsNullOrWhiteSpace(firstname))
-            {
-                Console.WriteLine("Invalid option. Try again!");
-                goto firstname;
-            }
-
-            lastname:
-            Console.WriteLine("Enter Your Last Name:");
-            string lastname = Console.ReadLine();
-            if (String.IsNullOrWhiteSpace(lastname))
-            {
-                Console.WriteLine("Invalid option. Try again!");
-                goto lastname;
-            }
-
-        birthday:
-            Console.WriteLine("Enter your Birthdate(DD/MM/YYYY)");
-            string input = Console.ReadLine();
-            string format = "dd/MM/yyyy";
             DateTime birthday = new DateTime();
             CultureInfo provider = CultureInfo.InvariantCulture;
+            string username, firstname, lastname;
 
-            try
+            do
             {
-                birthday = DateTime.ParseExact(input, format, provider);
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("{0} is not in the correct format.", input);
-                goto birthday;
-            }
+                Console.WriteLine("Enter username:");
+                username = Console.ReadLine();
 
-            if (birthday < DateTime.Today)
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    Console.WriteLine("Invalid option. Try again!");
+                    continue;
+                }
+                else
+                {
+                    foreach (User user in userservice.GetUsers())
+                    {
+                        if (username == user.UserName)
+                        {
+                            Console.WriteLine("Invalid option. Try again!");
+                            continue;
+                        }
+                    }
+                }
+                break;
+            } while (true);
+
+            do
             {
-                userservice.AddUser(username, firstname, lastname, birthday);
-            }
-            else
+                Console.WriteLine("Enter Your First Name:");
+                firstname = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(firstname))
+                {
+                    Console.WriteLine("Invalid option. Try again!");
+                    continue;
+                }
+                break;
+            } while (true);
+
+            do
             {
-                Console.WriteLine("Invalid option. Try again!");
-                goto birthday;
-            }
+                Console.WriteLine("Enter Your Last Name:");
+                lastname = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(lastname))
+                {
+                    Console.WriteLine("Invalid option. Try again!");
+                    continue;
+                }
+                break;
+            } while (true);
+
+            do
+            {
+                Console.WriteLine("Enter your Birthdate(DD/MM/YYYY)");
+                string value = Console.ReadLine();
+                string format = "dd/MM/yyyy";
+
+                try
+                {
+                    birthday = DateTime.ParseExact(value, format, provider);
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("{0}\nIs not in the correct format.", value);
+                    continue;
+                }
+
+                if (birthday < DateTime.Today)
+                {
+                    userservice.AddUser(username, firstname, lastname, birthday);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid option. Try again!");
+                    continue;
+                }
+                break;
+            } while (true);
         }
 
         private static void AddPost()
@@ -201,41 +219,93 @@ namespace PostingApp
             } while (c.Key != ConsoleKey.Enter);
         }
 
+        private static void DisplayPostsbyUser()
+        {
+            string username;
+            do
+            {
+                Console.WriteLine("Enter your username:");
+                username = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    Console.WriteLine("Invalid option. Try again!");
+                    continue;
+                }
+                else
+                {
+                    if(userservice.GetUsers().Where(x => x.UserName == username).Count() == 0)
+                    {
+                        Console.WriteLine("User not found. Try again!");
+                        continue;
+                    }
+                    break;
+                }                
+            } while (true);
+
+            var posts = postservice.GetPosts().Where(x => x.UserName == username).OrderByDescending(x => x.Time);
+
+            if (posts.Count() == 0)
+            {
+                Console.WriteLine("There are no posts!");
+            }
+            else
+            {
+                Console.WriteLine("All posts:");
+
+                foreach (Post post in posts)
+                {
+                    Console.WriteLine($"{post.Time}: {post.Message} Posted by {post.UserName}");
+                }
+            }
+
+            ConsoleKeyInfo c;
+            do
+            {
+                Console.Write("\nPress Enter to go to menu!");
+                c = Console.ReadKey();
+            } while (c.Key != ConsoleKey.Enter);
+        }
+
         static void Main(string[] args)
         {
-         start:
-            postservice.PostAdded -= Postservice_PostAdded;
-            Console.Clear();
-            DisplayMenu();
-            Console.WriteLine("Your option is:");
-            int option = 0;
-            int.TryParse(Console.ReadLine(), out option);
-            Console.WriteLine();
-
-            switch (option)
+            do
             {
-                case 1:
-                    Register();                    
-                    goto start;
-                case 2:
-                    AddPost();
-                    goto start;                
-                case 3:
-                    DisplayAllPosts();
-                    goto start;
-                case 4:
-                    DisplayAllUsers();
-                    goto start;
-                case 5:
-                    DisplayPostbyIndex();
-                    goto start;
-                case 6:
-                    return;                
-                default:
-                    Console.WriteLine("Invalid option. Try again!");
-                    Thread.Sleep(2000);
-                    goto start;
-            }
+                postservice.PostAdded -= Postservice_PostAdded;
+                Console.Clear();
+                DisplayMenu();
+                Console.WriteLine("Your option is:");
+                int.TryParse(Console.ReadLine(), out int option);
+                Console.WriteLine();
+
+                switch (option)
+                {
+                    case 1:
+                        Register();
+                        continue;
+                    case 2:
+                        AddPost();
+                        continue;
+                    case 3:
+                        DisplayAllPosts();
+                        continue;
+                    case 4:
+                        DisplayAllUsers();
+                        continue;
+                    case 5:
+                        DisplayPostbyIndex();
+                        continue;
+                    case 6:
+                        DisplayPostsbyUser();
+                        continue;
+                    case 7:
+                        return;
+                    default:
+                        Console.WriteLine("Invalid option. Try again!");
+                        Thread.Sleep(2000);
+                        continue;
+                }
+            } while (true);
         }
     }
 }
